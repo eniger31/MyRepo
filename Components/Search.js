@@ -12,11 +12,14 @@ class Search extends React.Component {
     // component constructor with parameters props by default
     constructor(props) {
         super(props)
-        // Outside STATE
+        // ..... Outside STATE
         // Initialize our searchedText data outside the state because no need to reload the rendering
         this.searchedText = "" 
-        // STATE 
-        this.state= { 
+        // Scroll page : 2 props 
+        this.page = 0
+        this.totalPages = 0 
+        // ..... In STATE 
+        this.state = { 
             films: [],
             isLoading: false // not loading on going
          }
@@ -30,9 +33,16 @@ class Search extends React.Component {
         // getFilmsFromApiWithSearchedText("star").then(data => this.setState( {films: data.results}))
         if (this.searchedText.length > 0) { // if field not empty
             this.setState({ isLoading: true})
-            getFilmsFromApiWithSearchedText(this.searchedText).then(data => {
-                this.setState({ 
+            getFilmsFromApiWithSearchedText(this.searchedText, this.page+1 ).then(data => {
+                this.page = data.page
+                this.totalPages = data.total_pages
+                this.setState
+                ({ 
+                    // pour ne oas écraser les films de la page pécédente
+                    //to NOT overwrite the movies of the previous page, do a copy with ...
+                    // films: data.results,
                     films: data.results,
+                    films: [ ...this.state.films, ...data.results ],
                     // end research
                     isLoading: false
                 })
@@ -60,10 +70,25 @@ class Search extends React.Component {
         }
       }
 
+      _searchFilms(){
+          // to reset our data for a new RESEARCH
+          this.page = 0 
+          this.totalPages = 0
+          this.setState ({
+              films: []
+          }, () => {
+            // check & start a new search LINK (fonction fléchée) and AFTER reset setState (because setState is asynchonimous)
+            console.log("Page : " + this.page + " / TotalPages : " + this.totalPages + " / Nombre de films : " + this.state.films.length)
+            this._loadFilms()
+          })
+            // check & start a new search
+            //console.log("Page : " + this.page + " / TotalPages : " + this.totalPages + " / Nombre de films : " + this.state.films.length)
+            //this._loadFilms()
+      }
 
   render() {
-      console.log("RENDER")
-      console.log("LOADER", this.state.isLoading)
+      //console.log("RENDER")
+      //console.log("LOADER", this.state.isLoading)
     return (
       <View style={styles.main_container}>
         <TextInput 
@@ -73,13 +98,28 @@ class Search extends React.Component {
         // searchTextInputChange receives the text entered for each character written in the input field
         onChangeText={(text) => this._searchTextInputChanged(text)}
         // To validate on ENTER (additional option)
-        onSubmitEditing={() => this._loadFilms()}
+        onSubmitEditing={() => this._searchFilms()}
         />
-        <Button title='Search ... Regina !' onPress={() => this._loadFilms()}/>
+        <Button title='Search ... Regina !' onPress={() => this._searchFilms()}/>
         <FlatList
             // data={films}
             data={this.state.films}
             keyExtractor={(item) => item.id.toString()}
+            // Afficher le scroll dès que la fin de la page arrive à 1/2de l'écran
+            // Display the scroll as soon as the end of the page reaches 1/2 of the screen
+            onEndReachedThreshold={0.5}
+            onEndReached= { () => { 
+                // check limit page 
+                console.log("OnEndReached ..... BEFORE", this.totalPages)
+                // LIMIT 2 page instead a full scrolling 
+                // if (this.page < this.totalPages)
+                if (this.page < 2)
+                { 
+                    console.log("OnEndReached .....")
+                    this._loadFilms()
+                }
+                
+            }}
             //give the props film to my component FilmItem
             renderItem={({item}) => <FilmItem film={item}/>}
         />
