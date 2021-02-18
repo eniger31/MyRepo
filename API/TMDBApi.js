@@ -1,7 +1,7 @@
 const API_TOKEN = "37b24c7f861086cb1755e641b8ecfaa1"
 
-export function getFilmsFromApiWithSearchedText (text) {
-    const url = 'https://api.themoviedb.org/3/search/movie?api_key=' + API_TOKEN + '&language=fr&query=' + text
+export function getFilmsFromApiWithSearchedText (text, page) {
+    const url = 'https://api.themoviedb.org/3/search/movie?api_key=' + API_TOKEN + '&language=fr&query=' + text + '&page=' + page
     // fetch : js library
     return fetch(url)
     // then function: converts the response from our API to JSON and returns it.
@@ -11,7 +11,7 @@ export function getFilmsFromApiWithSearchedText (text) {
 
   // create URL
   // https://developers.themoviedb.org/3/getting-started/images
-  
+
   export function getImageFromApi (name) {
     return 'https://image.tmdb.org/t/p/w300' + name
   }

@@ -7,7 +7,7 @@ import { getImageFromApi } from '../API/TMDBApi'
 class FilmItem extends React.Component {
     render() {
         const film = this.props.film
-        console.log ("Mes films", film)
+        //console.log ("Mes films", film)
         return (
           <View style={styles.main_container}>
             <Image
@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
     margin: 5
   },
   header_container: {
+    //position: static,
     flex: 3,
     flexDirection: 'row'
   },
